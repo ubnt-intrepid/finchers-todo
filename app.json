@@ -1,0 +1,11 @@
+{
+  "name": "finchers-todo",
+  "description": "Example Web application using finchers framework",
+  "repository": "https://github.com/ubnt-intrepid/finchers-todo.git",
+  "website": "https://github.com/ubnt-intrepid/finchers-todo",
+  "keywords": ["rust", "finchers"],
+  "success_url": "/",
+  "env": {
+    "BUILDPACK_URL": "https://github.com/emk/heroku-buildpack-rust.git"
+  }
+}
