@@ -4,7 +4,5 @@ version = "0.1.0"
 authors = ["Yusuke Sasaki <yusuke.sasaki.nuem@gmail.com>"]
 
 [dependencies]
-futures = "*"
+futures = "~0.1"
 finchers = { git = "https://github.com/ubnt-intrepid/finchers.git", branch = "fix/issue/20" }
-structopt = "*"
-structopt-derive = "*"
