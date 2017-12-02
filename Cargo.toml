@@ -1,0 +1,10 @@
+[package]
+name = "finchers-todo"
+version = "0.1.0"
+authors = ["Yusuke Sasaki <yusuke.sasaki.nuem@gmail.com>"]
+
+[dependencies]
+futures = "*"
+finchers = { git = "https://github.com/ubnt-intrepid/finchers.git", branch = "fix/issue/20" }
+structopt = "*"
+structopt-derive = "*"
