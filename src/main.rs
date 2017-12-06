@@ -23,7 +23,7 @@ use errors::ApiError;
 fn main() {
     let endpoint = |_: &_| {
         // GET /todos/:id
-        let get_todo = get(segment("todos").err::<ApiError>().with(u64::PATH))
+        let get_todo = get(segment("todos").with(u64::PATH))
             .map(|id| Json(todo::get(id)));
 
         // GET /todos
@@ -31,7 +31,7 @@ fn main() {
             .map(|()| Json(todo::list()));
 
         // DELETE /todos/:id
-        let delete_todo = delete(segment("todos").err::<ApiError>().with(u64::PATH))
+        let delete_todo = delete(segment("todos").with(u64::PATH))
             .map(|id| { todo::delete(id); });
 
         // DELETE /todos
@@ -39,13 +39,12 @@ fn main() {
             .map(|()| { todo::clear(); });
 
         // PUT /todos/:id
-        let put_todo = put(segment("todos").err::<ApiError>().with(u64::PATH))
+        let put_todo = put(segment("todos").with(u64::PATH))
             .join(json_body::<Todo>().map_err(|_| ApiError::ParseBody))
-            .map(|(id, Json(todo))| { todo::set(id, todo); })
-            .err::<ApiError>();
+            .map(|(id, Json(todo))| { todo::set(id, todo); });
 
         // POST /todos
-        let post_todo = post(segment("todos").err::<ApiError>())
+        let post_todo = post(segment("todos"))
             .with(json_body::<NewTodo>().map_err(|_| ApiError::ParseBody))
             .map(|Json(new_todo)| Created(Json(todo::save(new_todo))));
 
