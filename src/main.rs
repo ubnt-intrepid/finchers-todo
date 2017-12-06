@@ -5,6 +5,7 @@ extern crate lazy_static;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate serde_json;
 
 mod todo;
 mod errors;
@@ -40,12 +41,12 @@ fn main() {
 
         // PUT /todos/:id
         let put_todo = put(segment("todos").with(u64::PATH))
-            .join(json_body::<Todo>().map_err(|_| ApiError::ParseBody))
+            .join(json_body::<Todo, ApiError>())
             .map(|(id, Json(todo))| { todo::set(id, todo); });
 
         // POST /todos
         let post_todo = post(segment("todos"))
-            .with(json_body::<NewTodo>().map_err(|_| ApiError::ParseBody))
+            .with(json_body::<NewTodo, ApiError>())
             .map(|Json(new_todo)| Created(Json(todo::save(new_todo))));
 
         (get_todo.map(Either6::E1))
