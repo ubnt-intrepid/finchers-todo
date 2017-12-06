@@ -5,7 +5,6 @@ use hyper::StatusCode;
 #[derive(Debug)]
 pub enum ApiError {
     ParseBody,
-    Unknown,
 }
 
 impl Responder for ApiError {
@@ -14,7 +13,6 @@ impl Responder for ApiError {
         use ApiError::*;
         match self {
             ParseBody => Ok(Response::new().with_status(StatusCode::BadRequest)),
-            Unknown => unreachable!(),
         }
     }
 }

@@ -11,6 +11,7 @@ mod errors;
 
 use finchers::{Endpoint, Json};
 use finchers::endpoint::method::{delete, get, post, put};
+use finchers::endpoint::path::segment;
 use finchers::endpoint::{json_body, PathExt};
 use finchers::response::Created;
 use finchers::server::Server;
@@ -20,29 +21,31 @@ use todo::{NewTodo, Todo};
 use errors::ApiError;
 
 fn main() {
-    let todos = || "todos".map_err(|_| ApiError::Unknown);
-    let todos_id = || "todos".with(u64::PATH).map_err(|_| ApiError::Unknown);
-
-    let endpoint = move |_: &_| {
+    let endpoint = |_: &_| {
         // GET /todos/:id
-        let get_todo = get(todos_id()).map(|id| Json(todo::get(id)));
+        let get_todo = get(segment("todos").err::<ApiError>().with(u64::PATH))
+            .map(|id| Json(todo::get(id)));
 
         // GET /todos
-        let get_todos = get(todos()).map(|()| Json(todo::list()));
+        let get_todos = get(segment("todos"))
+            .map(|()| Json(todo::list()));
 
         // DELETE /todos/:id
-        let delete_todo = delete(todos_id()).map(|id| { todo::delete(id); });
+        let delete_todo = delete(segment("todos").err::<ApiError>().with(u64::PATH))
+            .map(|id| { todo::delete(id); });
 
         // DELETE /todos
-        let delete_todos = delete(todos()).map(|()| { todo::clear(); });
+        let delete_todos = delete(segment("todos"))
+            .map(|()| { todo::clear(); });
 
         // PUT /todos/:id
-        let put_todo = put(todos_id())
+        let put_todo = put(segment("todos").err::<ApiError>().with(u64::PATH))
             .join(json_body::<Todo>().map_err(|_| ApiError::ParseBody))
-            .map(|(id, Json(todo))| { todo::set(id, todo); });
+            .map(|(id, Json(todo))| { todo::set(id, todo); })
+            .err::<ApiError>();
 
         // POST /todos
-        let post_todo = post(todos())
+        let post_todo = post(segment("todos").err::<ApiError>())
             .with(json_body::<NewTodo>().map_err(|_| ApiError::ParseBody))
             .map(|Json(new_todo)| Created(Json(todo::save(new_todo))));
 
