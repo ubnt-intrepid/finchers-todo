@@ -14,7 +14,7 @@ use finchers::{Endpoint, Json};
 use finchers::endpoint::method::{delete, get, post, put};
 use finchers::endpoint::path::segment;
 use finchers::endpoint::{json_body, PathExt};
-use finchers::response::Created;
+use finchers::response::{Created, NoContent};
 use finchers::server::Server;
 use finchers::util::either::Either6;
 
@@ -33,21 +33,32 @@ fn main() {
 
         // DELETE /todos/:id
         let delete_todo = delete(segment("todos").with(u64::PATH))
-            .map(|id| { todo::delete(id); });
+            .map(|id| {
+                todo::delete(id);
+                NoContent
+            });
 
         // DELETE /todos
         let delete_todos = delete(segment("todos"))
-            .map(|()| { todo::clear(); });
+            .map(|()| {
+                todo::clear();
+            });
 
         // PUT /todos/:id
         let put_todo = put(segment("todos").with(u64::PATH))
             .join(json_body::<Todo, ApiError>())
-            .map(|(id, Json(todo))| { todo::set(id, todo); });
+            .map(|(id, Json(todo))| {
+                todo::set(id, todo.clone());
+                Json(todo)
+            });
 
         // POST /todos
         let post_todo = post(segment("todos"))
             .with(json_body::<NewTodo, ApiError>())
-            .map(|Json(new_todo)| Created(Json(todo::save(new_todo))));
+            .map(|Json(new_todo)| {
+                let todo = todo::save(new_todo);
+                Created(Json(todo))
+            });
 
         (get_todo.map(Either6::E1))
             .or(get_todos.map(Either6::E2))
